@@ -107,6 +107,6 @@ function showAddedMessage(productId, addedMessageTimeoutId) {
     addedMessage.classList.remove('added-to-cart-visible');
   }, 2000);
 
-  //* Store the timer ID in the addedMessageTimeoutId variable for future reference and so we can stop it later.
+  //* Return and store the timer ID in the addedMessageTimeoutId variable for future reference and so we can stop it later.
   return timeoutId;
 }
