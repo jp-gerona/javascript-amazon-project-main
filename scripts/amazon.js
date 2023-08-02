@@ -1,4 +1,4 @@
-import {cart} from '../data/cart.js';
+import {cart, addToCart} from '../data/cart.js';
 import {products} from '../data/products.js';
 
 let productsHTML = '';
@@ -60,6 +60,17 @@ products.forEach((product) => {
 document.querySelector('.js-products-grid')
   .innerHTML = productsHTML;
 
+function updateCartQuantity () {
+  let cartQuantity = 0;
+
+  cart.forEach((cartItem) => {
+    cartQuantity += cartItem.quantity;
+  });
+
+  document.querySelector('.js-cart-quantity')
+    .innerHTML = cartQuantity;
+}
+
 document.querySelectorAll('.js-add-to-cart')
   .forEach((button) => {
 
@@ -72,50 +83,30 @@ document.querySelectorAll('.js-add-to-cart')
     button.addEventListener('click', () => {
       const {productId} = button.dataset;
 
-      let matchingItem;
+      addToCart(productId);
 
-      cart.forEach((item) => {
-        if (productId === item.productId) {
-          matchingItem = item;
-        }
-      });
+      updateCartQuantity();
 
-      const quantitySelector = document.querySelector(`.js-quantity-selector-${productId}`);
-      const quantity =  Number(quantitySelector.value);
+      addedMessageTimeoutId = showAddedMessage(productId, addedMessageTimeoutId);
 
-      if (matchingItem) {
-        matchingItem.quantity += quantity;
-      } else {
-        cart.push({
-          productId,
-          quantity
-        });
-      }
-
-      let cartQuantity = 0;
-
-      cart.forEach((item) => {
-        cartQuantity += item.quantity;
-      });
-
-      document.querySelector('.js-cart-quantity')
-        .innerHTML = cartQuantity;
-
-      //* Display the green "Added" message.
-      const addedMessage = document.querySelector(`.js-added-to-cart-${productId}`);
-      addedMessage.classList.add('added-to-cart-visible');
-
-      //* If there is an existing timer for the message, clear it.
-      if (addedMessageTimeoutId) {
-        clearTimeout(addedMessageTimeoutId);
-      }
-
-      //* Set a new timer to remove the "Added" message after 2 seconds.
-      const timeoutId = setTimeout(() => {
-        addedMessage.classList.remove('added-to-cart-visible');
-      }, 2000);
-
-      //* Store the timer ID in the addedMessageTimeoutId variable for future reference and so we can stop it later.
-      addedMessageTimeoutId = timeoutId;
     });
   });
+
+function showAddedMessage(productId, addedMessageTimeoutId) {
+  //* Display the green "Added" message.
+  const addedMessage = document.querySelector(`.js-added-to-cart-${productId}`);
+  addedMessage.classList.add('added-to-cart-visible');
+
+  //* If there is an existing timer for the message, clear it.
+  if (addedMessageTimeoutId) {
+    clearTimeout(addedMessageTimeoutId);
+  }
+
+  //* Set a new timer to remove the "Added" message after 2 seconds.
+  const timeoutId = setTimeout(() => {
+    addedMessage.classList.remove('added-to-cart-visible');
+  }, 2000);
+
+  //* Store the timer ID in the addedMessageTimeoutId variable for future reference and so we can stop it later.
+  return timeoutId;
+}
