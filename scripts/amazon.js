@@ -41,7 +41,7 @@ products.forEach((product) => {
 
           <div class="product-spacer"></div>
 
-          <div class="added-to-cart">
+          <div class="added-to-cart js-added-to-cart-${product.id}">
             <img src="images/icons/checkmark.png">
             Added
           </div>
@@ -59,6 +59,13 @@ document.querySelector('.js-products-grid')
 
 document.querySelectorAll('.js-add-to-cart')
   .forEach((button) => {
+
+    //* This variable is used to store the timer ID of the "Added" message.
+    //* It is declared outside the event listener function to create a closure, allowing the timer ID to persist between multiple button clicks.
+    //* Because of closure, the function we give to button.addEventlistener() will get a unique ID of the addedMessageTimeoutId variable.
+    //* This allows us to create multiple unique copies of the addedMessageTimeoutId variable and keep track of many timeOutIds (one for each product).
+    let addedMessageTimeoutId;
+
     button.addEventListener('click', () => {
       const {productId} = button.dataset;
 
@@ -90,5 +97,22 @@ document.querySelectorAll('.js-add-to-cart')
 
       document.querySelector('.js-cart-quantity')
         .innerHTML = cartQuantity;
+
+      //* Display the green "Added" message.
+      const addedMessage = document.querySelector(`.js-added-to-cart-${productId}`);
+      addedMessage.classList.add('added-to-cart-visible');
+
+      //* If there is an existing timer for the message, clear it.
+      if (addedMessageTimeoutId) {
+        clearTimeout(addedMessageTimeoutId);
+      }
+
+      //* Set a new timer to remove the "Added" message after 2 seconds.
+      const timeoutId = setTimeout(() => {
+        addedMessage.classList.remove('added-to-cart-visible');
+      }, 2000);
+
+      //* Store the timer ID in the addedMessageTimeoutId variable for future reference and so we can stop it later.
+      addedMessageTimeoutId = timeoutId;
     });
   });
